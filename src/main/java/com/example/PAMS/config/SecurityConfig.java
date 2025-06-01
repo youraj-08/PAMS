@@ -34,8 +34,6 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .usernameParameter("username")   // Make sure these match your form
-                        .passwordParameter("password")
                         .successHandler(authenticationSuccessHandler())
                         .failureUrl("/login?error=true")
                         .permitAll()

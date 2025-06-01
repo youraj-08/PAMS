@@ -20,7 +20,6 @@ public class User implements UserDetails {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    // CRITICAL FIX: Add explicit column mapping
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 

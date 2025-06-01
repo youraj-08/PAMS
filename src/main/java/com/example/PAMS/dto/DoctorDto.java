@@ -3,7 +3,7 @@ package com.example.PAMS.dto;
 import lombok.Data;
 
 @Data
-public class DoctorRegistrationDto {
+public class DoctorDto {
     private String name;
     private String email;
     private String password;

@@ -1,6 +1,5 @@
 package com.example.PAMS.entities;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +18,9 @@ public class Doctor {
     private String email;
     private String phone;
     private String password;
+
+    @Column(name = "availability", columnDefinition = "JSON")
+    private String availability;
 
     @OneToOne(mappedBy = "doctor")
     private User user;

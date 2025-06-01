@@ -1,6 +1,5 @@
 package com.example.PAMS.entities;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 
