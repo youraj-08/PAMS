@@ -36,11 +36,6 @@ public class AuthController {
         System.out.println(patient.getPassword());
         return "redirect:/login?registered";
     }
-//    // Login Page
-//    @GetMapping("/login")
-//    public String login() {
-//        return "login";
-//    }
 }
 
 
