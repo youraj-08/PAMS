@@ -5,6 +5,7 @@ import com.example.PAMS.dto.DoctorDto;
 import com.example.PAMS.entities.Admin;
 import com.example.PAMS.entities.Doctor;
 import com.example.PAMS.entities.Patient;
+import com.example.PAMS.entities.User;
 import com.example.PAMS.exception.ResourceNotFoundException;
 import com.example.PAMS.repository.AdminRepository;
 import com.example.PAMS.repository.DoctorRepository;
@@ -13,11 +14,15 @@ import com.example.PAMS.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -51,39 +56,71 @@ public class AdminController {
     }
 
     // Patient Management
+
     @GetMapping("/patients")
     public String listPatients(Model model) {
         model.addAttribute("patients", patientRepository.findAll());
         return "admin-patients";
     }
 
+    @Transactional
     @PostMapping("/patients/delete/{id}")
     public String deletePatient(@PathVariable("id") Integer id) {
-        Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+        try {
+            Patient patient = patientRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+            //user.setPatient(null);
+            userRepository.findByPatient_PatientId(id).ifPresent(userRepository::delete);
 
-        // Delete associated user
-        userRepository.findByPatient(patient).ifPresent(userRepository::delete);
-
-        patientRepository.delete(patient);
-        return "redirect:/admin/patients?deleted=true";
+            patientRepository.delete(patient);
+            return "redirect:/admin/patients?deleted=true";
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+            return "redirect:/admin/patients?error=true";
+        }
     }
+
+
     @GetMapping("/patients/edit/{id}")
     public String editPatientForm(@PathVariable("id") Integer id, Model model) {
         Patient patient = patientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
         model.addAttribute("patient", patient);
-        return "admin-edit-patient"; // Create this template
+        return "admin-edit-patient";
     }
 
+    // Update the updatePatient method
     @PostMapping("/patients/update/{id}")
     public String updatePatient(@PathVariable("id") Integer id,
-                                @ModelAttribute Patient patient) {
-        Patient existing = patientRepository.findById(id).orElseThrow();
-        existing.setPhone(patient.getPhone());
-        // Update other fields as needed
-        patientRepository.save(existing);
-        return "redirect:/admin/patients?updated=true";
+                                @Valid @ModelAttribute("patient") Patient updatedPatient,
+                                BindingResult result,
+                                RedirectAttributes redirectAttributes) {
+
+        if (result.hasErrors()) {
+            System.out.println(result.getAllErrors());
+            return "admin-edit-patient";
+        }
+
+        Patient existingPatient = patientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+        User existingUser = userRepository.findByEmail(existingPatient.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        existingUser.setEmail(updatedPatient.getEmail());
+
+        // Update all fields
+        existingPatient.setName(updatedPatient.getName());
+        existingPatient.setEmail(updatedPatient.getEmail());
+        existingPatient.setPhone(updatedPatient.getPhone());
+        existingPatient.setAddress(updatedPatient.getAddress());
+        existingPatient.setDob(updatedPatient.getDob());
+
+        patientRepository.save(existingPatient);
+        userRepository.save(existingUser);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Patient updated successfully!");
+        return "redirect:/admin/patients";
     }
 
     // Doctor Management
