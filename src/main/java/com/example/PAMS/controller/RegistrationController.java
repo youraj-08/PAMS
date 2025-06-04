@@ -4,7 +4,7 @@ import com.example.PAMS.dto.DoctorDto;
 import com.example.PAMS.entities.Admin;
 import com.example.PAMS.entities.Patient;
 import com.example.PAMS.service.AdminRegistrationService;
-import com.example.PAMS.service.DoctorRegistrationService;
+import com.example.PAMS.service.DoctorService;
 import com.example.PAMS.service.PatientRegistrationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class RegistrationController {
     private PatientRegistrationService patientRegistrationService;
 
     @Autowired
-    private DoctorRegistrationService doctorRegistrationService;
+    private DoctorService doctorService;
 
     @Autowired
     private AdminRegistrationService adminRegistrationService;
@@ -61,7 +61,7 @@ public class RegistrationController {
             System.out.println(result.getAllErrors());
             return "doctor-register";
         }
-        doctorRegistrationService.registerDoctor(doctorDto);
+        doctorService.registerDoctor(doctorDto);
         System.out.println(doctorDto.getPassword());
         return "redirect:/login?registered";
     }

@@ -7,6 +7,7 @@ import com.example.PAMS.repository.DoctorRepository;
 import com.example.PAMS.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -15,20 +16,20 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Service
-public class DoctorRegistrationService {
+public class DoctorService {
 
         private final DoctorRepository doctorRepository;
         private final UserRepository userRepository;
         private final PasswordEncoder passwordEncoder;
 
-        public DoctorRegistrationService(DoctorRepository doctorRepository,
-                                            UserRepository userRepository,
-                                            PasswordEncoder passwordEncoder) {
+    public DoctorService(DoctorRepository doctorRepository,
+                             UserRepository userRepository,
+                             PasswordEncoder passwordEncoder, ObjectMapper objectMapper) {
             this.doctorRepository = doctorRepository;
             this.userRepository = userRepository;
             this.passwordEncoder = passwordEncoder;
-        }
-
+    }
+        //Register Doctor
         public String registerDoctor(@ModelAttribute("doctor") DoctorDto doctorDto) {
             // Create Doctor entity
             Doctor doctor = new Doctor();
@@ -58,6 +59,31 @@ public class DoctorRegistrationService {
 
             return "redirect:/login?registered";
         }
+
+
+    public void updateDoctor(DoctorDto doctorDto) {
+        Doctor doctor = doctorRepository.findById(doctorDto.getDoctorId())
+                .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+
+        // Update editable fields
+        doctor.setPhone(doctorDto.getPhone());
+        doctor.setAvailability(buildAvailabilityJson(doctorDto));
+
+        // Update password only if provided
+        if (doctorDto.getPassword() != null && !doctorDto.getPassword().isEmpty()) {
+            String encodedPassword = passwordEncoder.encode(doctorDto.getPassword());
+            doctor.setPassword(encodedPassword);
+
+            // Also update associated user's password
+            User user = userRepository.findByDoctor(doctor)
+                    .orElseThrow(() -> new EntityNotFoundException("User account not found"));
+            user.setPassword(encodedPassword);
+            userRepository.save(user);
+        }
+
+        doctorRepository.save(doctor);
+    }
+
 
         private String buildAvailabilityJson(DoctorDto dto) {
             // Build JSON structure for availability

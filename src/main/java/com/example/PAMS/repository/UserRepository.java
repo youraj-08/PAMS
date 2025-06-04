@@ -19,5 +19,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByAdmin(Admin admin);
 
-    Optional<User> findByPatient_PatientId(Integer patientId);
+    Optional<User> findByPatient_PatientId(Integer id);
+
+    Optional<Object> findByDoctor_DoctorId(Integer id);
+
+    Optional<User> findByAdmin_AdminId(Integer id);
 }

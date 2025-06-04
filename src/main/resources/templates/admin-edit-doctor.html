@@ -59,12 +59,42 @@
             flex-direction: column;
             min-width: 120px;
         }
+        .alert {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
     </style>
 </head>
 <body>
 <div th:replace="~{admin-dashboard :: sidebar}"></div>
 
 <div class="main-content">
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <div class="header">
         <div>
             <h1 class="h3 mb-0">Edit Doctor Details</h1>
@@ -74,6 +104,7 @@
 
     <div class="form-container">
         <form th:action="@{'/admin/doctors/update/' + ${doctor.doctorId}}" th:object="${doctor}" method="post">
+            <input type="hidden" th:field="*{doctorId}" />
             <div class="row mb-4">
                 <div class="col-md-6">
                     <h5>Doctor Information</h5>
@@ -112,9 +143,62 @@
                             </div>
                         </div>
 
-                        <!-- Repeated for Tuesday, Wednesday, Thursday, Friday -->
+                        <div class="availability-day">
+                            <div class="day-label">Tuesday</div>
+                            <div class="time-inputs">
+                                <div class="time-group">
+                                    <label>Start Time</label>
+                                    <input type="time" class="form-control" th:field="*{tuesdayStart}" required>
+                                </div>
+                                <div class="time-group">
+                                    <label>End Time</label>
+                                    <input type="time" class="form-control" th:field="*{tuesdayEnd}" required>
+                                </div>
+                            </div>
+                        </div>
 
-                        <!-- Saturday (optional) -->
+                        <div class="availability-day">
+                            <div class="day-label">Wednesday</div>
+                            <div class="time-inputs">
+                                <div class="time-group">
+                                    <label>Start Time</label>
+                                    <input type="time" class="form-control" th:field="*{wednesdayStart}" required>
+                                </div>
+                                <div class="time-group">
+                                    <label>End Time</label>
+                                    <input type="time" class="form-control" th:field="*{wednesdayEnd}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="availability-day">
+                            <div class="day-label">Thursday</div>
+                            <div class="time-inputs">
+                                <div class="time-group">
+                                    <label>Start Time</label>
+                                    <input type="time" class="form-control" th:field="*{thursdayStart}" required>
+                                </div>
+                                <div class="time-group">
+                                    <label>End Time</label>
+                                    <input type="time" class="form-control" th:field="*{thursdayEnd}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="availability-day">
+                            <div class="day-label">Friday</div>
+                            <div class="time-inputs">
+                                <div class="time-group">
+                                    <label>Start Time</label>
+                                    <input type="time" class="form-control" th:field="*{fridayStart}" required>
+                                </div>
+                                <div class="time-group">
+                                    <label>End Time</label>
+                                    <input type="time" class="form-control" th:field="*{fridayEnd}" required>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="availability-day">
                             <div class="day-label">Saturday</div>
                             <div class="time-inputs">
@@ -129,7 +213,6 @@
                             </div>
                         </div>
 
-                        <!-- Sunday (optional) -->
                         <div class="availability-day">
                             <div class="day-label">Sunday</div>
                             <div class="time-inputs">
